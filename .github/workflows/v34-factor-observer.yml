@@ -1,0 +1,51 @@
+name: V3.4 Factor Observer
+
+on:
+  schedule:
+    # Taiwan 20:10 = UTC 12:10, after the close and the stable V3 report.
+    - cron: "10 12 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      as_of:
+        description: "Optional point-in-time date (YYYY-MM-DD)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v34-factor-observer
+  cancel-in-progress: false
+
+jobs:
+  run-v34-factor-observer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run V3.4 factor observer
+        env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
+          INPUT_AS_OF: ${{ inputs.as_of }}
+        shell: bash
+        run: |
+          if [[ -n "$INPUT_AS_OF" ]]; then
+            uv run python v34_factor_report.py --as-of "$INPUT_AS_OF"
+          else
+            uv run python v34_factor_report.py
+          fi
