@@ -2,9 +2,11 @@ name: Premarket Night Session
 
 on:
   schedule:
-    # 台灣時間 08:00 = UTC 00:00（夜盤 05:00 收完、開盤 09:00 前）
-    - cron: '0 0 * * 1-5'
-  workflow_dispatch:  # 允許手動觸發測試
+    # 台灣時間平日 07:17，避開 GitHub 整點壅塞
+    - cron: '17 7 * * 1-5'
+      timezone: "Asia/Taipei"
+
+  workflow_dispatch:
 
 jobs:
   run-premarket:
