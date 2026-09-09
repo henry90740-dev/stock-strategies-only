@@ -9,19 +9,19 @@ on:
 jobs:
   run-signal:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v10.0.1
         with:
           python-version: "3.11"
 
       - name: Install deps
-        run: uv sync
+        run: uv sync --frozen
 
       - name: Run signal engine
         env:
@@ -30,4 +30,4 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
-        run: uv run python main.py
+        run: uv run python -u main.py
